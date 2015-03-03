@@ -19,7 +19,7 @@ GENDER = (
     ('0', 'Male'),
     ('1', 'Female'),
     ('2', 'Decline to respond')
-    )
+)
 
 DEFAULT = 1
 
