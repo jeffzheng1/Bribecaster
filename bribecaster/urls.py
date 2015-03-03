@@ -13,6 +13,7 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^index.html/', views.index, name='index'),
+    url(r'^datatables.html/$', views.table, name='table'),
     url(r'^datatables/$', views.table, name='table'),
     url(r'^datatables/sms-only$', views.SMSOnlyTable, name='smstable'),
     url(r'^datatables/robo-only$', views.RobocallOnlyTable, name='robotable'),
@@ -29,6 +30,7 @@ urlpatterns = patterns('',
     url(r'^cases/office-charts/(?P<office_id>\d+)$', views.office_chart, name='office-charts'),
     url(r'^cases/per_office$', views.office_num_cases, name='test'),
     url(r'^cases/sms-report$', views.office_sms_report, name='sms_report'),
+    url(r'^datatables.html/message$', views.sms, name="sms")
 )
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

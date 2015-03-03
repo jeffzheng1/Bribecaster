@@ -112,6 +112,18 @@ class User(models.Model):
     def __str__(self):
         return self.first_name + " " + self.last_name + " at " + self.office.office_name
 
+class SMSFeedback(models.Model):
+    message_sent_time = models.DateTimeField(default = datetime.now())
+    message_recieved_time = models.DateTimeField(default = datetime.now())
+    sms_sent_text = models.CharField(max_length = 140, default = "SMS Not Sent")
+    sms_recieved_text = models.CharField(max_length = 280,  default = "SMS Not Received") #Can we get longer responses?
+    sms_sentiment = models.IntegerField(default = -1)
+
+    # case = models.ForeignKey(Case)
+
+    def __str__(self):
+        return "SMSFeedback"
+
 """ A Case Model containing the forms and followups from a particular citizen visit to an office.
 
 belongs to a user
@@ -124,20 +136,21 @@ class Case(models.Model):
     office = models.ForeignKey(Office, default = DEFAULT)
     user = models.ManyToManyField(User, default = [DEFAULT])
     
-    sms_selected = models.BooleanField()
-    robo_call_selected = models.BooleanField()
-    follow_up_selected = models.BooleanField()
+    sms_selected = models.BooleanField(default=False)
+    robo_call_selected = models.BooleanField(default=False)
+    follow_up_selected = models.BooleanField(default=False)
 
-    # sms_response = models.ManyToManyField(SMSResponse)
-    # robo_response = models.ForeignKey(RoboResponse)
-    # call_response = models.ManyToManyField(CallResponse)
+    sms_response = models.ForeignKey(SMSFeedback, default = DEFAULT)
+    # sms_response = models.ManyToManyField(SMSFeedback)
+    # robo_response = models.ForeignKey()
+    # call_response = models.ManyToManyField()
 
     def __str__(self):              # __unicode__ on Python 2
         return self.citizen.first_name + " " + self.citizen.last_name + ";" + self.citizen.phone_number 
 
 class OfficeVisit(models.Model):
     service_used = models.CharField(max_length = 1, choices = SERVICE_TYPE)
-    time_of_visit = models.DateTimeField(default = datetime.now())
+    # time_of_visit = models.DateTimeField(default = datetime.now())
 
     case = models.ForeignKey(Case)
     citizen = models.ForeignKey(Citizen)
@@ -148,24 +161,12 @@ class OfficeVisit(models.Model):
 
 class RoboCallFeedback(models.Model):
     call_response = models.CharField(max_length=40, default='OBC Certificate')
-    time_of_call = models.DateTimeField(default = datetime.now())
+    # time_of_call = models.DateTimeField(default = datetime.now())
 
     case = models.ForeignKey(Case)
 
     def __str__(self):
         return "RoboCall"
-
-class SMSFeedback(models.Model):
-    message_sent_time = models.DateTimeField()
-    message_recieved_time = models.DateTimeField()
-    sms_sent_text = models.CharField(max_length = 140, default = "Sent SMS")
-    sms_recieved_text = models.CharField(max_length = 280) #Can we get longer responses?
-    sms_sentiment = models.IntegerField(default = -1)
-
-    case = models.ForeignKey(Case)
-
-    def __str__(self):
-        return "SMSFeedback"
 
 class Form(models.Model):
     office_visit = models.ForeignKey(OfficeVisit)
@@ -175,8 +176,8 @@ class OBCFormResponse(Form):
     religion = models.CharField(max_length = 40)
     caste = models.CharField(max_length = 40)
     sub_caste = models.CharField(max_length = 40)
-    issued_in_past = models.BooleanField()
-    education_certification_contains_caste = models.BooleanField()
+    issued_in_past = models.BooleanField(default=False)
+    education_certification_contains_caste = models.BooleanField(default=False)
     caste_serial_number = models.CharField(max_length = 40)
     name_of_father = models.CharField(max_length = 40)
     name_of_mother = models.CharField(max_length = 40)

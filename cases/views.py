@@ -2,15 +2,35 @@ from django.shortcuts import render_to_response, render
 from django.template.context import RequestContext
 from models import Citizen, OBCFormResponse, Case, Office, OfficeVisit
 from forms import CaseForm, OBCFormForm, CitizenForm, AadhaarLookup, Form
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.core.urlresolvers import reverse
-from datetime import date
+from datetime import date, datetime
+from django_twilio.decorators import twilio_view
+from django_twilio.client import twilio_client
 import random
 import json
 
 def index(request):
     return render_to_response('bribecaster/index.html', context_instance=RequestContext(request))
 
+@twilio_view
+def sms(request):
+    if request.method == "POST":
+        phone_number = request.POST.get('phone_number')
+        name = request.POST.get('name')
+        cases = Case.objects.all()
+        query_case = cases.get(citizen__phone_number=phone_number)
+        query_case.sms_response.message_sent_time = datetime.now()
+        query_case.sms_response.sms_sent_text = "SMS Sent. Waiting Response."
+        query_case.sms_response.save()
+        twilio_client.messages.create(
+            to=phone_number, 
+            from_="+13057499234", 
+            body="Hi " + name + ", were you solicited for a bribe today?",  
+        ) 
+        return JsonResponse({})
+    else: 
+        return JsonResponse({"nothing to": "see here"})
 
 def toPercent(float):
     num = round(float, 2)
@@ -77,7 +97,6 @@ def detail(request, case_id):
             'sms': case.smsfeedback_set.all(),
             'robo': case.robocallfeedback_set.all()})
     
-
 def table(request):
     if request.method == "GET":
         data = [];
@@ -88,19 +107,24 @@ def table(request):
             temp.append(case.citizen.last_name)
             temp.append(case.id)
             temp.append(case.office.office_name)
-            temp.append("<input id=" + "'sms" + str(uniqueCounter) + "' type='checkbox' value='False'>")
+            if (case.sms_response.sms_sent_text == "SMS Not Sent"):
+                temp.append("<form id='post-sms' action='table' method='post'><input id=" "'sms" + str(uniqueCounter) + "'type='checkbox' value=" + 
+                    case.citizen.phone_number + " name='" +  case.citizen.first_name + "'></form>")
+            else:
+                temp.append(case.sms_response.sms_sent_text)
             temp.append("<input id=" + "'robo" + str(uniqueCounter) + "' type='checkbox' value='False'>")
             temp.append("<input id=" + "'followup" + str(uniqueCounter) + "' type='checkbox' value='False'>")
             temp.append("<a data-toggle='modal' href=" + "'#" + str(case.id) + "' class='btn btn-primary btn-sm'></a>")
             temp.append(case.citizen)
             temp.append(case.office)
             temp.append(case.officevisit_set.all())
-            temp.append(case.smsfeedback_set.all())
+            temp.append(case.sms_response)
             temp.append(case.robocallfeedback_set.all())
             data.append(temp)
             uniqueCounter += 1
         context = {"cases": data, "length": len(data)}
         return render_to_response('bribecaster/datatables.html', context)
+
 
 def SMSOnlyTable(request):
     if request.method == "GET":

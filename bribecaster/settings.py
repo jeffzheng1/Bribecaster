@@ -36,8 +36,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'cases',
     'django_twilio',
+    'cases',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -79,8 +79,8 @@ USE_L10N = True
 USE_TZ = True
 
 # Parse database configuration from $DATABASE_URL
-import dj_database_url
-DATABASES['default'] =  dj_database_url.config()
+# import dj_database_url
+# DATABASES['default'] =  dj_database_url.config()
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -97,3 +97,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
+TWILIO_ACCOUNT_SID = 'AC748816d9f511070753692ace2f92ec68'
+TWILIO_AUTH_TOKEN = '87111da6aaba9f7ddd635e53c8e77978'
+TWILIO_DEFAULT_CALLERID = '3057499234'
+DEBUG = True
