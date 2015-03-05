@@ -274,7 +274,7 @@
 					<li>
 						<a href="#"><i class="fa fa-lg fa-fw fa-bar-chart-o"></i> <span class="menu-item-parent">Views</span></a>
 						<ul>
-							<li class="active">
+							<li>
 								<a href="/casesView">Cases Report</a>
 							</li>
 							<li>
@@ -818,28 +818,6 @@
 		            
 		    } );
 		    /* END COLUMN FILTER */   
-	    
-			/* COLUMN SHOW - HIDE */
-			$('#datatable_col_reorder').dataTable({
-				"sDom": "<'dt-toolbar'<'col-xs-12 col-sm-6'f><'col-sm-6 col-xs-6 hidden-xs'C>r>"+
-						"t"+
-						"<'dt-toolbar-footer'<'col-sm-6 col-xs-12 hidden-xs'i><'col-sm-6 col-xs-12'p>>",
-				"autoWidth" : true,
-				"preDrawCallback" : function() {
-					// Initialize the responsive datatables helper once.
-					if (!responsiveHelper_datatable_col_reorder) {
-						responsiveHelper_datatable_col_reorder = new ResponsiveDatatablesHelper($('#datatable_col_reorder'), breakpointDefinition);
-					}
-				},
-				"rowCallback" : function(nRow) {
-					responsiveHelper_datatable_col_reorder.createExpandIcon(nRow);
-				},
-				"drawCallback" : function(oSettings) {
-					responsiveHelper_datatable_col_reorder.respond();
-				}			
-			});
-			
-			/* END COLUMN SHOW - HIDE */
 	
 			/* TABLETOOLS */
 			$('#datatable_tabletools').dataTable({
@@ -888,6 +866,29 @@
 
 		</script>
 
+		<script type="text/javascript">
+	        var length = {{length}}
+	        for (var i = 0; i < length; i++) {
+	            (function assignListeners () { 
+	                var counter = i;
+                    $(document).on('click', "#sms" + counter, function(e) {
+                    	e.preventDefault();
+                    	$.ajax({
+					        url: "message",
+					        type : "POST",
+					        data : { phone_number : $("#sms" + counter).val(),
+					    			 name : $("#sms" + counter).attr("name")},
+					    	success : function() {
+					    		replyText("sms" + counter);
+					    	},
+					    });
+					});
+                    document.getElementById('robo' + counter).addEventListener("click", function() {return replyRobo('robo' + counter)});
+                    document.getElementById('followup' + counter).addEventListener("click", function() {return replyFollowup('followup' + counter)});
+	            }())
+	        }  
+    	</script>
+
 		<!-- Your GOOGLE ANALYTICS CODE Below -->
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
@@ -903,30 +904,6 @@
 			s.parentNode.insertBefore(ga, s);
 			})();
 		</script>
-
-		<script type="text/javascript">
-	        var length = {{length}}
-	        for (var i = 0; i < length; i++) {
-	            (function assignListeners () { 
-	                var counter = i;
-                    $(document).on('click', "#sms" + counter, function(e) {
-                    	e.preventDefault();
-                    	$.ajax({
-					        url: "message",
-					        type : "POST",
-					        data : { phone_number : $("#sms" + counter).val(),
-					    			name : $("#sms" + counter).attr("name")},
-					    	 success : function() {
-					    	 	replyText("sms" + counter);
-					    	 },
-					    });
-					});
-                    document.getElementById('robo' + counter).addEventListener("click", function() {return replyRobo('robo' + counter)});
-                    document.getElementById('followup' + counter).addEventListener("click", function() {return replyFollowup('followup' + counter)});
-	            }())
-	        }  
-    	</script>
-
 
 	</body>
 
